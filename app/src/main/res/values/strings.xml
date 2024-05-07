@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">E-Commerce</string>
+    <string name="title_activity_splash_screen">SplashScreen</string>
+    <string name="title_activity_sign_in">SignIn</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_product_details">ProductDetails</string>
+</resources>
