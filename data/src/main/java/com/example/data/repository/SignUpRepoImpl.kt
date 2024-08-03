@@ -20,7 +20,5 @@ class SignUpRepoImpl @Inject constructor(private val onlineDataSource: OnlineDat
        return onlineDataSource.signIn(userData)
     }
 
-    override suspend fun getAllCategories(): List<CategoryItem?>? {
-        return onlineDataSource.getAllCategories()
-    }
+
 }

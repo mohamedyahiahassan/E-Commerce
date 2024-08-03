@@ -26,9 +26,6 @@ class WishlistViewModel @Inject constructor(private val wishlistRepository: Wish
 
             val response = wishlistRepository.getWishlist(Token.token!!)
 
-
-
-
             if (response!=null && response.status.equals("success")){
 
                 wishlist.clear()
@@ -41,29 +38,23 @@ class WishlistViewModel @Inject constructor(private val wishlistRepository: Wish
 
 
 
-    fun removeProductFromWishlist(productId:String){
+    fun removeProductFromWishlist(product:ProductItem){
 
         viewModelScope.launch {
 
+            wishlistRepository.removeProductFromWishlist(Token.token?:"",product.id!!)
 
-            wishlistRepository.removeProductFromWishlist(Token.token?:"",productId)
-
-
-
-
+            wishlist.remove(product)
         }
     }
 
-    fun addToCart(productId: String){
+    fun addToCart(product:ProductItem){
 
         viewModelScope.launch {
 
+            cartRepository.addProductToCart(Token.token!!,product.id!!)
 
-
-
-            cartRepository.addProductToCart(Token.token!!,productId)
-
-            removeProductFromWishlist(productId)
+            removeProductFromWishlist(product)
 
         }
 

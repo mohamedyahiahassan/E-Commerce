@@ -1,21 +1,27 @@
 package com.example.e_commerce.categories
 
 import android.util.Log
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.Token
+import com.example.data.model.subCategories.SubCategoryItem
 import com.example.domain.contract.repository.CartRepository
 import com.example.domain.contract.repository.ProductsRepository
+import com.example.domain.contract.repository.SubCategoriesRepository
 import com.example.domain.contract.repository.WishlistRepository
+import com.example.domain.model.categories.CategoryItem
 import com.example.domain.model.products.ProductItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CategoriesViewModel @Inject constructor(private val productsRepository: ProductsRepository,
+class CategoriesViewModel @Inject constructor(
+    private val subCategoriesRepository: SubCategoriesRepository,
+    private val productsRepository: ProductsRepository,
     private val wishlistRepository: WishlistRepository,
     private val cartRepository: CartRepository):ViewModel() {
 
@@ -26,6 +32,51 @@ class CategoriesViewModel @Inject constructor(private val productsRepository: Pr
 
     val selectedProductDetails = mutableStateOf<ProductItem?>(null)
 
+    var categoriesList = mutableStateListOf<CategoryItem?>()
+
+    var selectedSubCategoriesList = mutableStateListOf<SubCategoryItem?>()
+
+    var selectedCategoryIndex = mutableIntStateOf(0)
+
+    fun getSubCategories(id: String?){
+
+        viewModelScope.launch {
+
+            if (id!=null){
+                val response =  subCategoriesRepository.getAllSubCategoriesOnCategory(id)
+
+                selectedSubCategoriesList.clear()
+
+                if (response?.isNotEmpty()==true){
+
+                    selectedSubCategoriesList.clear()
+
+                    selectedSubCategoriesList.addAll(response)
+
+
+
+                }
+            }
+
+
+        }
+    }
+
+    fun getCategories(){
+
+        viewModelScope.launch {
+
+            val response = productsRepository.getAllCategories()
+
+            if (response?.isNotEmpty()==true){
+
+                categoriesList.addAll(response)
+
+            }
+        }
+
+
+    }
 
     fun getProductsInSelectedCategory(){
 

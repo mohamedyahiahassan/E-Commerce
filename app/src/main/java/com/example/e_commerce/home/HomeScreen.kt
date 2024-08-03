@@ -1,5 +1,6 @@
 package com.example.e_commerce.home
 
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemInfo
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,12 +60,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.e_commerce.Constants
 import com.example.e_commerce.R
 import com.example.e_commerce.ui.theme.primaryBlue
@@ -79,28 +83,37 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.domain.model.products.ProductItem
+import com.example.e_commerce.categories.CategoriesViewModel
 import com.example.e_commerce.categories.SideMenuItem
+import com.example.e_commerce.ui.theme.poppinsFont
 import com.example.e_commerce.utils.DotsIndicator
+import com.example.e_commerce.utils.ProductOverView
 
 
 //@Preview(showSystemUi = true)
 @Composable
-fun HomeScreenContent(viewModel: HomeViewModel = viewModel(),onCategoryClick:(index:Int)->Unit,onViewAllClick:()->Unit){
+fun HomeScreenContent(
+    viewModel: CategoriesViewModel = viewModel(),
+    onCategoryClick:(index:Int)->Unit,
+    onViewAllClick:()->Unit,
+    navigateToProductDetails:(productItem: ProductItem)->Unit){
 
-    Column() {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ){
+        DiscountAds()
 
-            DiscountAds()
-            CategoriesGrid(viewModel,onCategoryClick,onViewAllClick)
+        CategoriesGrid(viewModel,onCategoryClick,onViewAllClick)
+
+        ElectronicsProducts {
+            navigateToProductDetails(it)
+        }
 
     }
 
 }
 
-@Composable
-fun HomeAppliances(){
-
-
-}
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -160,10 +173,9 @@ fun DiscountAds(){
 }
 
 
-
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun CategoriesGrid(viewModel: HomeViewModel,onCategoryClick:(index:Int)->Unit,onViewAllClick:()->Unit){
+fun CategoriesGrid(viewModel: CategoriesViewModel,onCategoryClick:(index:Int)->Unit,onViewAllClick:()->Unit){
     
     LaunchedEffect(key1 = Unit){
 
@@ -177,13 +189,20 @@ fun CategoriesGrid(viewModel: HomeViewModel,onCategoryClick:(index:Int)->Unit,on
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(top=20.dp, bottom = 20.dp, end = 17.dp)
         ) {
-        Text(text = "Categories",color = blueTextColor, fontSize = 18.sp)
+        Text(
+            text = "Categories",
+            color = blueTextColor,
+            fontSize = 18.sp,
+            fontFamily = poppinsFont,
+            fontWeight = FontWeight.Medium)
 
         Spacer(modifier = Modifier.weight(1f))
 
         Text(text = "view all",
             color = blueTextColor,
             fontSize = 12.sp,
+            fontFamily = poppinsFont,
+            fontWeight = FontWeight.Medium,
             modifier = Modifier.clickable {
                 onViewAllClick()
             })
@@ -191,14 +210,11 @@ fun CategoriesGrid(viewModel: HomeViewModel,onCategoryClick:(index:Int)->Unit,on
     
     LazyHorizontalGrid(
         rows = GridCells.Fixed(2),
-        modifier = Modifier
-            .fillMaxHeight(0.7f)
+        modifier = Modifier.height(280.dp)
             ,
-      //  verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(17.dp
-        ),
+        horizontalArrangement = Arrangement.spacedBy(15.dp),
         content = {
-        
+
         items(viewModel.categoriesList.size){
 
             Column (
@@ -231,6 +247,72 @@ fun CategoriesGrid(viewModel: HomeViewModel,onCategoryClick:(index:Int)->Unit,on
         }
         
     })
+}
+
+
+
+@Composable
+fun ElectronicsProducts(
+    navigateToProductDetails:(productItem: ProductItem)->Unit
+){
+
+    Row (
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(bottom = 10.dp, end = 17.dp)
+    ) {
+        Text(
+            text = "Electronics",
+            color = blueTextColor,
+            fontSize = 18.sp,
+            fontFamily = poppinsFont,
+            fontWeight = FontWeight.Medium)
+
+    }
+
+    val viewModel = hiltViewModel<CategoriesViewModel>()
+    
+    LaunchedEffect(key1 = Unit) {
+
+        viewModel.categoryId.value = "6439d2d167d9aa4ca970649f"
+
+        viewModel.getProductsInSelectedCategory()
+    }
+
+    LazyRow(
+
+        horizontalArrangement = Arrangement.spacedBy(15.dp)
+    ){
+
+        items(viewModel.listOfProducts){
+
+            ProductOverView(
+                image = it?.imageCover!!,
+                name = it.title!!,
+                desc = it.description!!,
+                price =it.price.toString() ,
+                review = it.ratingsAverage.toString(),
+                openProductDetails = {
+
+                    viewModel.selectedProductDetails.value = it
+
+                    navigateToProductDetails(it)
+                },
+                addedToFavourite = {
+
+                    viewModel.addProductToWishlist(it.id?:"")
+                },
+                removeFromFavourite = {
+
+                    viewModel.removeProductFromWishlist(it.id?:"")
+                },
+                addToCart = {
+
+                    viewModel.selectedProductDetails.value = it
+                    viewModel.addToCart()
+
+                })
+        }
+    }
 }
 
 

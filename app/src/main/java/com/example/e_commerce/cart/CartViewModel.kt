@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.Token
 import com.example.domain.contract.repository.CartRepository
 import com.example.domain.model.cart.GetCartProductsItem
+import com.example.domain.model.products.ProductItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -51,10 +52,10 @@ class CartViewModel@Inject constructor(private  val cartRepository: CartReposito
         }
     }
 
-    fun updateProductQuantityInCart(productId: String,quantity:Int){
+    fun updateProductQuantityInCart(product:GetCartProductsItem,quantity:Int){
 
         viewModelScope.launch {
-            cartRepository.updateProductQuantity(Token.token!!,productId,quantity.toString())
+            cartRepository.updateProductQuantity(Token.token!!,product.id!!,quantity.toString())
 
         }
 

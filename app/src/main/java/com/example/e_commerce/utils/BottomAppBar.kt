@@ -25,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -37,48 +38,21 @@ import com.example.e_commerce.WishlistScreen
 import com.example.e_commerce.ui.theme.primaryBlue
 
 @Composable
-fun EcomBottomAppBar(navController: NavController, ){
+fun EcomBottomAppBar(currentDestination: NavDestination?,navigateToDestination:(route:String)->Unit){
 
-  /*  var selectedTabIndex by remember {
-        mutableStateOf(0)
-    }
-
-   */
-
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-
-    BottomAppBar(
-        modifier = Modifier
-            .fillMaxWidth(1f)
-            .height(60.dp)
-            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
-        containerColor = primaryBlue,
-        windowInsets = WindowInsets.navigationBars
-    ) {
-
-        NavigationBar(modifier = Modifier.fillMaxWidth(1f),
-            containerColor = Color.Transparent
+        NavigationBar(
+            modifier = Modifier.height(85.dp)
+                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+            containerColor = primaryBlue
         ) {
 
             NavigationBarItem(
                 selected =  currentDestination?.hierarchy?.any {
                     it.route == HomeScreen().route } == true,
 
-                //selectedTabIndex == index ,
                 onClick = {
+                    navigateToDestination(HomeScreen().route)
 
-                    navController.navigate(HomeScreen().route) {
-                        popUpTo(navController.graph.findStartDestination().id){
-                            saveState = true
-                        }
-                        launchSingleTop = true
-
-
-
-
-                    }
                 },
                 colors = NavigationBarItemDefaults.colors(indicatorColor = primaryBlue),
                 icon = {
@@ -108,15 +82,10 @@ fun EcomBottomAppBar(navController: NavController, ){
 
                 } == true,
 
-                //selectedTabIndex == index ,
                 onClick = {
 
-                    navController.navigate("${CategoriesScreen().route}/${0}") {
-                        popUpTo(navController.graph.findStartDestination().id)
-                        launchSingleTop = true
+                   navigateToDestination("${CategoriesScreen().route}/${0}")
 
-
-                    }
                 },
                 colors = NavigationBarItemDefaults.colors(indicatorColor = primaryBlue),
                 icon = {
@@ -151,15 +120,9 @@ fun EcomBottomAppBar(navController: NavController, ){
 
                 } == true,
 
-                //selectedTabIndex == index ,
                 onClick = {
 
-                    navController.navigate(WishlistScreen().route) {
-                        popUpTo(navController.graph.findStartDestination().id)
-                        launchSingleTop = true
-
-
-                    }
+                    navigateToDestination(WishlistScreen().route)
                 },
                 colors = NavigationBarItemDefaults.colors(indicatorColor = primaryBlue),
                 icon = {
@@ -191,15 +154,9 @@ fun EcomBottomAppBar(navController: NavController, ){
 
                 } == true,
 
-                //selectedTabIndex == index ,
                 onClick = {
 
-                    navController.navigate(WishlistScreen().route) {
-                        popUpTo(navController.graph.findStartDestination().id)
-                        launchSingleTop = true
-
-
-                    }
+                    navigateToDestination(AccountScreen().route)
                 },
                 colors = NavigationBarItemDefaults.colors(indicatorColor = primaryBlue),
                 icon = {
@@ -222,65 +179,5 @@ fun EcomBottomAppBar(navController: NavController, ){
                     }
 
                 })
-
-
-            /* Constants.listOfScreens.forEachIndexed{ index, screenItem ->
-
-                 NavigationBarItem(
-                     selected =  currentDestination?.hierarchy?.any {
-                         it.route == screenItem.route } == true,
-
-                     //selectedTabIndex == index ,
-                     onClick = {
-
-                         selectedTabIndex = index
-
-                         navController.navigate(screenItem.route) {
-                             // Pop up to the start destination of the graph to
-                             // avoid building up a large stack of destinations
-                             // on the back stack as users select items
-                             popUpTo(navController.graph.findStartDestination().id) {
-                                 saveState = true
-                             }
-                             // Avoid multiple copies of the same destination when
-                             // reselecting the same item
-                             launchSingleTop = true
-                             // Restore state when reselecting a previously selected item
-                             restoreState = true
-
-
-
-                         }
-                     },
-                     colors = NavigationBarItemDefaults.colors(indicatorColor = primaryBlue),
-                     icon = {
-
-                         if (selectedTabIndex == index) {
-                             Image(
-                                 painter = painterResource(id = screenItem.navBarTabItem!!.selectedIcon),
-                                 contentDescription = screenItem.navBarTabItem.title,
-                                 modifier = Modifier.size(40.dp)
-                             )
-                         } else {
-                             Image(
-                                 painter = painterResource(id = screenItem.navBarTabItem!!.unSelectedIcon),
-                                 contentDescription = screenItem.navBarTabItem.title,
-                                 modifier = Modifier.size(40.dp)
-                             )
-                         }
-
-                     })
-
-
-
-             }
-
-
-             */
         }
-
-
-
-    }
-
 }

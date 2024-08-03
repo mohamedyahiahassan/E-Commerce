@@ -223,21 +223,7 @@ fun ProductDetailsContent(paddingValues: PaddingValues, productItem: ProductItem
             fontSize = 14.sp,
             color = greyText)
 
-       /* Text(
-            text = "Size",
-            fontSize = 18.sp,
-            color = blueTextColor,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp))
-
-        Text(
-            text = "Color",
-            fontSize = 18.sp,
-            color = blueTextColor,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp))
-
-        */
+        Spacer(modifier = Modifier.weight(1f))
 
         Row (modifier = Modifier
             .padding(top = 20.dp)

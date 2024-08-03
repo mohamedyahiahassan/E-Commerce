@@ -11,7 +11,7 @@ interface SignUpRepository {
 
     suspend fun signIn(userData: UserData): SignInResponse
 
-    suspend fun getAllCategories(): List<CategoryItem?>?
+
 
 
 }

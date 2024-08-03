@@ -44,6 +44,7 @@ import com.example.e_commerce.ui.theme.greyBlueBorderSideMenu
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.domain.model.products.ProductItem
+import com.example.e_commerce.utils.ProductOverView
 
 @Composable
 fun ProductListContent(
@@ -58,13 +59,8 @@ fun ProductListContent(
         if (categoryId != null) {
 
             viewModel.categoryId.value = categoryId
-
-
         }
-
         viewModel.getProductsInSelectedCategory()
-
-
     }
 
     if (!viewModel.listOfProducts.isNullOrEmpty()) {
@@ -78,136 +74,40 @@ fun ProductListContent(
             horizontalArrangement = Arrangement.spacedBy(17.dp)
         ) {
 
-            items(viewModel.listOfProducts.size) {
+            items(viewModel.listOfProducts) {
 
-                Box(
-                    modifier = Modifier
-                        .padding(bottom = 17.dp)
-                        .size(220.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .border(3.dp, greyBlueBorderSideMenu, RoundedCornerShape(10.dp))
-                        .background(Color.Transparent, RoundedCornerShape(10.dp))
-                        .clickable {
+               if (it!=null){
 
-                            viewModel.selectedProductDetails.value = viewModel.listOfProducts[it]!!
+                   ProductOverView(
+                       image = it.imageCover!!,
+                       name = it.title!!,
+                       desc = it.description!!,
+                       price =it.price.toString() ,
+                       review = it.ratingsAverage.toString(),
+                       openProductDetails = {
 
-                            navigateToProductDetails(viewModel.selectedProductDetails.value!!)
-                        }
-                ) {
+                           viewModel.selectedProductDetails.value = it
 
+                           navigateToProductDetails(it)
+                       },
+                       addedToFavourite = {
 
-                    Column(
-                    ) {
-                        AsyncImage(
-                            viewModel.listOfProducts[it]!!.imageCover,
-                            contentDescription = "updateCartProduct image",
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier
-                                .fillMaxWidth(1f)
-                                .fillMaxHeight(0.5f)
-                        )
+                           viewModel.addProductToWishlist(it.id?:"")
+                       },
+                       removeFromFavourite = {
 
-                        Column(
-                            modifier = Modifier
-                                .padding(top = 10.dp, bottom = 10.dp, start = 8.dp, end = 8.dp)
-                        ) {
+                           viewModel.removeProductFromWishlist(it.id?:"")
+                       },
+                       addToCart = {
 
-                            Text(
-                                text = viewModel.listOfProducts[it]!!.title?:"",
-                                fontSize = 14.sp,
-                                color = blueTextColor,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = viewModel.listOfProducts[it]!!.description?:"",
-                                fontSize = 14.sp,
-                                color = blueTextColor,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                           viewModel.selectedProductDetails.value = it
+                           viewModel.addToCart()
 
-                            Text(
-                                text = "EGP ${viewModel.listOfProducts[it]!!.price?:""}",
-                                fontSize = 14.sp,
-                                color = blueTextColor,
-                                modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = "Review (${viewModel.listOfProducts[it]!!.ratingsAverage})")
-                                Image(
-                                    painter = painterResource(id = R.drawable.star_rating),
-                                    contentDescription = "rating star",
-                                    modifier = Modifier
-                                        .padding(start = 8.dp)
-                                        .size(15.dp)
-                                )
-                            }
-
-
-                        }
-
-
-                    }
-
-
-
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier
-                            .padding(end = 6.dp, bottom = 10.dp, top = 6.dp)
-                            .fillMaxSize(1f)
-                    ) {
-
-                        val favoriteClicked = remember {
-                            mutableStateOf(false)
-                        }
-                        Image(
-                            painter = if (favoriteClicked.value == false) painterResource(id = R.drawable.favorite_unselected_ic)
-                            else painterResource(id = R.drawable.favorite_selected_ic),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clickable {
-
-                                    if (favoriteClicked.value == true) {
-                                        favoriteClicked.value = false
-                                        viewModel.removeProductFromWishlist(viewModel.listOfProducts[it]!!.id?:"")
-
-
-                                    } else if (favoriteClicked.value == false) {
-                                        favoriteClicked.value = true
-                                        viewModel.addProductToWishlist(viewModel.listOfProducts[it]!!.id?:"")
-                                    }
-
-
-
-
-                                }
-                        )
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Image(
-                            painter = painterResource(id = R.drawable.icon_plus_circle),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clickable {
-                                    viewModel.selectedProductDetails.value = viewModel.listOfProducts[it]
-                                           viewModel.addToCart()
-                                },
-                        )
-                    }
-
-
-                }
+                       })
+               }
 
             }
         }
     }
 }
+

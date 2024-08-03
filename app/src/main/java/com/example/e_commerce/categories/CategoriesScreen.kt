@@ -1,7 +1,8 @@
 package com.example.e_commerce.categories
 
-import android.util.Log
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,12 +13,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -40,36 +40,47 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.e_commerce.home.HomeViewModel
 import com.example.e_commerce.ui.theme.primaryBlue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.RequestBuilderTransform
-import com.bumptech.glide.integration.compose.rememberGlidePreloadingData
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import com.example.e_commerce.ui.theme.blueTextColor
 import com.example.e_commerce.ui.theme.greyBlueBorderSideMenu
 import com.example.e_commerce.ui.theme.greySideMenu
 
 
-
 @Composable
-fun CategoriesScreenContent(viewModel: HomeViewModel = viewModel(),index: Int?,navigateToProductsList:(categoryId:String)->Unit){
+fun CategoriesScreenContent(
+    viewModel: CategoriesViewModel = viewModel(),
+    index: Int?,
+    navigateToProductsList:(categoryId:String)->Unit
 
-    Row(
-        modifier = Modifier
-            .padding( end = 17.dp)
-            .fillMaxWidth(1f)
-            .fillMaxHeight(1f)
-    ) {
+){
+
+    LaunchedEffect(key1 = Unit) {
 
         if (index != null) {
             viewModel.selectedCategoryIndex.intValue = index
         }
+    }
+
+    LaunchedEffect(key1 = !viewModel.categoriesList.isNullOrEmpty() == true) {
+
+        if (!viewModel.categoriesList.isNullOrEmpty()){
+
+            viewModel.getSubCategories(viewModel.categoriesList[index?:0]?.id)
+        }
+
+
+    }
+
+    Row(
+        modifier = Modifier
+            .padding(end = 17.dp)
+            .fillMaxWidth(1f)
+            .fillMaxHeight(1f)
+    ) {
+
         sideMenu(viewModel)
         SubCategoriesGrid(viewModel,index,navigateToProductsList)
     }
@@ -79,138 +90,110 @@ fun CategoriesScreenContent(viewModel: HomeViewModel = viewModel(),index: Int?,n
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun SubCategoriesGrid(viewModel: HomeViewModel,index: Int?,navigateToProductsList:(categoryId:String)->Unit){
+fun SubCategoriesGrid(viewModel: CategoriesViewModel,index: Int?,navigateToProductsList:(categoryId:String)->Unit) {
 
-/*
-    LaunchedEffect(key1 = Unit){
+    if (!viewModel.categoriesList.isNullOrEmpty()) {
 
-        viewModel.selectedCategoryIndex.intValue = index!!
+        Column(modifier = Modifier.padding(start = 20.dp)) {
 
-        viewModel.getCategories()
+            Text(
+                text = viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.name.toString(),
+                color = blueTextColor,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(bottom = 20.dp)
+            )
 
-        if (!viewModel.categoriesList.isNullOrEmpty()) {
-
-            viewModel.onCategoryClick(viewModel.categoriesList[index!!]?.id)
-        }
-    }
-
- */
-
-
-    if (!viewModel.categoriesList.isNullOrEmpty()){
-
-      /*  LaunchedEffect(key1 = Unit){
-
-           viewModel.selectedCategoryIndex.intValue = index!!
-
-        viewModel.onCategoryClick(viewModel.categoriesList[index!!]?.id)
-
-        }
-
-       */
-
-
-
-    Column(modifier = Modifier.padding(start = 20.dp)) {
-        
-        Text(
-            text = viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.name.toString(),
-            color = blueTextColor,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(bottom = 20.dp))
-
-        Box(modifier = Modifier
-            .fillMaxWidth(1f)
-            .fillMaxHeight(0.30f)){
-
-
-            AsyncImage(model = viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.image,
-                contentDescription = "categoryDTO Image",
-                contentScale = ContentScale.Crop,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth(1f)
-                    .clip(shape = RoundedCornerShape(10.dp)),
-                )
-
-            Column(modifier = Modifier
-                .padding(start = 20.dp, top = 5.dp, bottom = 5.dp)
-                .fillMaxHeight()
-                .fillMaxWidth(1f)) {
+                    .fillMaxHeight(0.30f)
+            ) {
 
 
-                Text(
-                    text = viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.name.toString(),
-                    fontSize = 16.sp,
-                    color = Color.White,
-                )
-                
-                Spacer(modifier = Modifier.weight(0.75f))
-
-
-                Text(
-                    text = "Shop Now",
-                    fontSize = 16.sp,
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
+                AsyncImage(
+                    model = viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.image,
+                    contentDescription = "categoryDTO Image",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(primaryBlue)
-                        .width(150.dp)
-                        .height(40.dp)
-                        .wrapContentHeight(align = Alignment.CenterVertically)
-                        .clickable {
-                            navigateToProductsList(viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]!!.id?:"")
-                        }
-
-
+                        .fillMaxWidth(1f)
+                        .clip(shape = RoundedCornerShape(10.dp)),
                 )
-            }
-        }
-        LazyVerticalGrid(columns = GridCells.Fixed(3),
-            verticalArrangement = Arrangement.spacedBy(7.dp),
-            horizontalArrangement = Arrangement.spacedBy(7.dp),
-            modifier = Modifier.padding(top = 20.dp),
 
-            content = {
-
-                items(viewModel.selectedSubCategoriesList.size){
-
-                    Column {
-
-                        Text(text = viewModel.selectedSubCategoriesList[it]?.name.toString(),
-                            fontSize = 14.sp,
-                            color = Color.White,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(1.dp))
-                                .background(primaryBlue)
-                                .width(80.dp)
-                                .heightIn(min = 80.dp, max = 160.dp)
-                                .wrapContentHeight(align = Alignment.CenterVertically)
+                Column(
+                    modifier = Modifier
+                        .padding(start = 20.dp, top = 5.dp, bottom = 5.dp)
+                        .fillMaxHeight()
+                        .fillMaxWidth(1f)
+                ) {
 
 
-                        )
-                    }
+                    Text(
+                        text = viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.name.toString(),
+                        fontSize = 16.sp,
+                        color = Color.White,
+                    )
 
+                    Spacer(modifier = Modifier.weight(0.75f))
+
+
+                    Text(
+                        text = "Shop Now",
+                        fontSize = 16.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(15.dp))
+                            .background(primaryBlue)
+                            .width(150.dp)
+                            .height(40.dp)
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .clickable {
+                                navigateToProductsList(
+                                    viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]!!.id
+                                        ?: ""
+                                )
+                            }
+
+
+                    )
                 }
+            }
 
-            })
-      }
+            LazyColumn(
+                modifier = Modifier.padding(top = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ){
+                    items(viewModel.selectedSubCategoriesList) {
 
+                        Column(
+                            modifier = Modifier
+                                .padding(start = 10.dp, end = 10.dp)
+                                .fillMaxWidth(1f)
+                                .border(1.dp, greySideMenu, RoundedCornerShape(10.dp))
+                                .clip(RoundedCornerShape(10.dp))) {
 
+                            Spacer(modifier = Modifier.height(5.dp))
 
+                            Text(
+                                text = it?.name ?: "",
+                                fontSize = 14.sp,
+                                color = blueTextColor,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
 
+                            )
 
-
+                            Spacer(modifier = Modifier.height(5.dp))
+                        }
+                    }
+                }
+        }
     }
-
-
-
 }
 
 
 @Composable
-fun sideMenu(viewModel: HomeViewModel) {
+fun sideMenu(viewModel: CategoriesViewModel) {
 
     LaunchedEffect(key1 = Unit){
 
@@ -218,24 +201,21 @@ fun sideMenu(viewModel: HomeViewModel) {
 
     }
 
-
-
-        Column(
-            modifier = Modifier
-                .clip(RoundedCornerShape(topStart = 10.dp))
-                .background(greySideMenu)
-                .topBorder(3.dp, greyBlueBorderSideMenu, 10.dp)
-                .fillMaxWidth(0.34f)
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState())
-                .padding(top = 1.5.dp, start = 1.5.dp)
-                .clip(RoundedCornerShape(topStart = 10.dp))
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(topStart = 10.dp))
+            .background(greySideMenu)
+            .topBorder(3.dp, greyBlueBorderSideMenu, 10.dp)
+            .fillMaxWidth(0.34f)
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState())
+            .padding(top = 1.5.dp, start = 1.5.dp)
+            .clip(RoundedCornerShape(topStart = 10.dp))
 
         ) {
             repeat(viewModel.categoriesList.size) {
 
-
-               SideMenuItem(viewModel,it)
+                SideMenuItem(viewModel,it)
 
 
 
@@ -245,9 +225,7 @@ fun sideMenu(viewModel: HomeViewModel) {
 }
 
 @Composable
-fun SideMenuItem(viewModel: HomeViewModel, index:Int){
-
-
+fun SideMenuItem(viewModel: CategoriesViewModel, index:Int){
 
     if (viewModel.selectedCategoryIndex.intValue == index){
 
@@ -261,7 +239,7 @@ fun SideMenuItem(viewModel: HomeViewModel, index:Int){
 
                     viewModel.selectedCategoryIndex.intValue = index
 
-                    viewModel.onCategoryClick(viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.id)
+                    viewModel.getSubCategories(viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.id)
 
                 }
         ) {
@@ -293,7 +271,7 @@ fun SideMenuItem(viewModel: HomeViewModel, index:Int){
 
                     viewModel.selectedCategoryIndex.intValue = index
 
-                    viewModel.onCategoryClick(viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.id)
+                    viewModel.getSubCategories(viewModel.categoriesList[viewModel.selectedCategoryIndex.intValue]?.id)
 
 
                 }
@@ -317,6 +295,7 @@ fun SideMenuItem(viewModel: HomeViewModel, index:Int){
 
 }
 
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
 fun Modifier.topBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp) = composed(
     factory = {
         val density = LocalDensity.current
