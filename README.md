@@ -17,7 +17,8 @@ Key Features:
    * ViewModel : Stores UI-related data that isn't destroyed on UI changes.
    * Navigation component : Navigation refers to the interactions that allow users to navigate across, into, and back out from the different pieces of content within your app.
   
-* Dagger Hilt : Hilt is a dependency injection library for Android that reduces the boilerplate of doing manual dependency injection in your project.
+* Retrofit: for making network requests in a clean and efficient way and consuming RESTful API.
+* Dagger Hilt : dependency injection library for Android that reduces the boilerplate of doing manual dependency injection in your project.
 * Kotlin coroutines : Coroutine is a concurrency design pattern that you can use on Android to simplify code that executes asynchronously.
 * Coil : Coil is a fast and efficient open source media management and image loading framework for Android that wraps media decoding, memory and disk caching, and resource pooling into a simple and easy to use interface.
 
