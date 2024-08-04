@@ -121,7 +121,7 @@ fun CartContent(paddingValues: PaddingValues,viewModel:CartViewModel = viewModel
                         },
                             updateProductQuantity = {quantity->
 
-                                viewModel.updateProductQuantityInCart(it,quantity)
+                                viewModel.updateProductQuantityInCart(it.product!!,quantity)
 
                             })
                     }
